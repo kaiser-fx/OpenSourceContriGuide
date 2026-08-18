@@ -11,3 +11,9 @@ class UserProfileInfo(BaseModel):
     leetcode_url: Annotated[HttpUrl | None, Field(default=None, description='LeetCode profile Link of the user')] = None
     resume_id: Annotated[UUID | None, Field(default=None, description='Resume ID')] = None
     resume_filename: Annotated[str | None, Field(default=None, description='Resume filename')] = None
+
+
+class TestGithubProfile(BaseModel):
+    github_link: HttpUrl
+
+    
