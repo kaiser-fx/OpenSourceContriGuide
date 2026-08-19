@@ -81,7 +81,7 @@ async def create_profile(
 
 @app.post("/skill-dashboard")
 def get_skill_dashboard(profile_link: TestGithubProfile):
-    # 1. Extract username from the GitHub URL
+    #Extracts Username
     username = profile_link.github_link.path.strip("/")
     headers = {"User-Agent": "OpenSourceContriGuide"} #User-Agent is mandatary for github api
 
@@ -90,12 +90,12 @@ def get_skill_dashboard(profile_link: TestGithubProfile):
         headers["Authorization"] = f"Bearer {github_token}"
 
     try:
-        # 2. Fetch user profile (number of repos, followers, bio, etc.)
+        #User info
         req_profile = Request(f"https://api.github.com/users/{username}", headers=headers)
         with urlopen(req_profile) as response:
             profile_data = json.loads(response.read().decode())
 
-        # 3. Fetch user repositories (to extract languages & stars)
+        #User Repos Info
         req_repos = Request(f"https://api.github.com/users/{username}/repos?per_page=100", headers=headers)
         with urlopen(req_repos) as response:
             repos_data = json.loads(response.read().decode())
@@ -107,19 +107,21 @@ def get_skill_dashboard(profile_link: TestGithubProfile):
             raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="GitHub rate limit reached. Add a GITHUB_TOKEN in .env for 5,000 req/hr.")
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"GitHub error: {e.reason}")
 
-    # 4. Extract languages and stats across repos
-    languages = sorted(list({repo["language"] for repo in repos_data if repo.get("language")}))
+    languages = sorted(list({
+        repo["language"] 
+        for repo in repos_data 
+        if repo.get("language")}))
     total_stars = sum(repo.get("stargazers_count", 0) for repo in repos_data)
 
-    # 5. Structure whatever data you need
+
     dashboard_data = {
         "username": username,
         "name": profile_data.get("name"),
         "bio": profile_data.get("bio"),
-        "avatar_url": profile_data.get("avatar_url"),
+        #"avatar_url": profile_data.get("avatar_url"),
         "public_repos": profile_data.get("public_repos"),
-        "followers": profile_data.get("followers"),
-        "following": profile_data.get("following"),
+        #"followers": profile_data.get("followers"),
+        #"following": profile_data.get("following"),
         "total_stars": total_stars,
         "languages": languages,
         "repositories": [
@@ -133,7 +135,13 @@ def get_skill_dashboard(profile_link: TestGithubProfile):
         ],
     }
 
-    # 6. Print to console
+
     print("Dashboard Data:", json.dumps(dashboard_data, indent=2))
+    print(languages)
 
     return dashboard_data
+
+@app.post("skills/questionaire",status_code=status.HTTP_200_OK)
+def submit_questionaire():
+
+    pass
